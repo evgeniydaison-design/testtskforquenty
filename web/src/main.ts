@@ -12,6 +12,10 @@
 // «панель не видна» (закэшированный index.html → 404 на старые hashed
 // ассеты; лечится Cache-Control на сервере + reload отсюда).
 
+// Импорт CSS в точке входа: Vite выносит его в отдельный asset и
+// вставляет <link> в dist/index.html. Без этой строки страница рендерится
+// «голой» (без стилей) — это и был баг.
+import './styles.css';
 import { Connection } from './connection';
 import { Board, type Tool } from './board';
 import { LocalDoc } from './crdt';
@@ -541,21 +545,79 @@ window.addEventListener('keydown', (e) => {
   if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) {
     return;
   }
-  switch (e.key) {
-    case 'v': case 'V': activateTool('select'); return;
-    case 'r': case 'R': activateTool('rect'); return;
-    case 'o': case 'O': activateTool('ellipse'); return;
-    case 'd': case 'D':
-      // Ctrl+D = duplicate, просто D = diamond.
-      if (e.ctrlKey || e.metaKey) {
+
+  const mod = e.ctrlKey || e.metaKey;
+
+  // Хоткеи определяем по e.code — ФИЗИЧЕСКОЙ клавише, независимо от
+  // раскладки. На русской раскладке Ctrl+Z приходит как e.key='я', и
+  // старая проверка e.key === 'z' молча ломала отмену (и другие буквы).
+  switch (e.code) {
+    case 'KeyV': if (!mod) activateTool('select'); return;
+    case 'KeyR': if (!mod) activateTool('rect'); return;
+    case 'KeyO': if (!mod) activateTool('ellipse'); return;
+    case 'KeyL': if (!mod) activateTool('line'); return;
+    case 'KeyT': if (!mod) activateTool('text'); return;
+    case 'KeyE': if (!mod) activateTool('erase'); return;
+    case 'KeyD':
+      // Ctrl/Cmd+D = duplicate, просто D = diamond.
+      if (mod) {
         e.preventDefault();
         board.duplicateSelection();
         refreshHistoryButtons();
-        return;
+      } else {
+        activateTool('diamond');
       }
-      activateTool('diamond');
       return;
-    case 'l': case 'L': activateTool('line'); return;
+    case 'KeyA':
+      // Ctrl/Cmd+A — выделить всё; без модификатора — инструмент arrow.
+      if (mod) {
+        e.preventDefault();
+        board.selectAll();
+      } else {
+        activateTool('arrow');
+      }
+      return;
+    case 'KeyZ':
+      // Ctrl/Cmd+Z — undo; Ctrl/Cmd+Shift+Z — redo. Работает на любой
+      // раскладке, т.к. смотрим e.code, а не e.key.
+      if (mod) {
+        e.preventDefault();
+        const ok = e.shiftKey ? board.redo() : board.undo();
+        if (!ok) flashStatus(e.shiftKey ? 'нечего повторить' : 'нечего отменять');
+        refreshHistoryButtons();
+      }
+      return;
+    case 'KeyY':
+      // Ctrl/Cmd+Y — redo (конвенция Windows).
+      if (mod) {
+        e.preventDefault();
+        if (!board.redo()) flashStatus('нечего повторить');
+        refreshHistoryButtons();
+      }
+      return;
+    case 'Equal': case 'NumpadAdd': // Ctrl/Cmd «+»
+      if (mod) {
+        e.preventDefault();
+        const r = canvas.getBoundingClientRect();
+        board.viewport.zoomAt(r.width / 2, r.height / 2, 1.2);
+        updateZoomLabel();
+      }
+      return;
+    case 'Minus': case 'NumpadSubtract': // Ctrl/Cmd «-»
+      if (mod) {
+        e.preventDefault();
+        const r = canvas.getBoundingClientRect();
+        board.viewport.zoomAt(r.width / 2, r.height / 2, 1 / 1.2);
+        updateZoomLabel();
+      }
+      return;
+    case 'Digit0': case 'Numpad0': // Ctrl/Cmd «0»
+      if (mod) {
+        e.preventDefault();
+        board.viewport.reset();
+        updateZoomLabel();
+      }
+      return;
     case 'Delete':
     case 'Backspace':
       if (board.selection.length > 0) {
@@ -564,17 +626,6 @@ window.addEventListener('keydown', (e) => {
         refreshHistoryButtons();
       }
       return;
-    case 'a': case 'A':
-      // Ctrl/Cmd+A — выделить всё; без модификатора — инструмент arrow.
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        board.selectAll();
-        return;
-      }
-      activateTool('arrow');
-      return;
-    case 't': case 'T': activateTool('text'); return;
-    case 'e': case 'E': activateTool('erase'); return;
     case 'Escape':
       board.clearSelection();
       return;
@@ -588,40 +639,6 @@ window.addEventListener('keydown', (e) => {
       board.sendBackward();
       refreshHistoryButtons();
       return;
-  }
-
-  const mod = e.ctrlKey || e.metaKey;
-  if (!mod) return;
-  const k = e.key.toLowerCase();
-  if (k === 'z' && !e.shiftKey) {
-    e.preventDefault();
-    if (!board.undo()) flashStatus('нечего отменять');
-    return;
-  }
-  if ((k === 'z' && e.shiftKey) || k === 'y') {
-    e.preventDefault();
-    if (!board.redo()) flashStatus('нечего повторить');
-    return;
-  }
-  if (k === '=' || k === '+') {
-    e.preventDefault();
-    const r = canvas.getBoundingClientRect();
-    board.viewport.zoomAt(r.width / 2, r.height / 2, 1.2);
-    updateZoomLabel();
-    return;
-  }
-  if (k === '-') {
-    e.preventDefault();
-    const r = canvas.getBoundingClientRect();
-    board.viewport.zoomAt(r.width / 2, r.height / 2, 1 / 1.2);
-    updateZoomLabel();
-    return;
-  }
-  if (k === '0') {
-    e.preventDefault();
-    board.viewport.reset();
-    updateZoomLabel();
-    return;
   }
 });
 
