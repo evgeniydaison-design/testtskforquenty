@@ -1,0 +1,85 @@
+# golangci-lint v1 config.
+# Включаем только то, что реально ловит баги; от formatter-шума
+# (wsl, varnamelen, godox) сознательно отказались.
+
+run:
+  timeout: 3m
+  tests: true
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gosimple
+    - typecheck
+    - gofmt
+    - goimports
+    - misspell
+    - revive
+    - unconvert
+    - copyloopvar
+    - durationcheck
+    - nilerr
+    - noctx
+    - predeclared
+    - thelper
+    - wrapcheck
+    - makefile
+    - gosec
+
+linters-settings:
+  govet:
+    check-shadowing: false
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
+  revive:
+    rules:
+      - name: exported
+      - name: var-naming
+      - name: context-as-argument
+      - name: error-return
+      - name: error-naming
+      - name: increment-decrement
+      - name: range
+      - name: receiver-naming
+      - name: unexported-return
+      - name: indent-error-flow
+      - name: error-fmt
+  gosec:
+    excludes:
+      - G104 # Errors unhandled — перекрывается errcheck
+      - G115 # integer conversion overflow — пока слишком шумно
+  goimports:
+    local-prefixes: board
+  wrapcheck:
+    ignorePackageGlobs:
+      - board/internal/*
+      - encoding/json
+      - context
+      - net/http
+      - nhooyr.io/websocket
+  misspell:
+    locale: US
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    # В тестах разрешаем long functions, magic numbers и «неэкспортированные»
+    # хелперы.
+    - path: _test\.go
+      linters: [errcheck, gosec, revive, wrapcheck]
+    # main.go: allowed to call os.Exit.
+    - path: cmd/server/main.go
+      linters: [forbidigo]
+  exclude-dirs:
+    - web
+    - node_modules
+    - bin
+    - dist

@@ -1,0 +1,25 @@
+# Go
+bin/
+*.exe
+*.test
+*.out
+coverage.html
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Web
+web/node_modules/
+web/dist/
+web/.vite/
+
+# Runtime — серверная персистенция (WAL/snapshot), не исходники
+/data/
+
+# Прочее
+*.log
+.env
+.env.local

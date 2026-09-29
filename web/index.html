@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Board — Stage 5+</title>
+  </head>
+  <body>
+    <div id="app">
+      <header id="toolbar">
+        <div class="group">
+          <button id="room-chip" class="chip" title="Комната: сменить / подключиться заново">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/></svg>
+            <span id="room-chip-label">—</span>
+          </button>
+          <button id="leave" class="chip" title="Отключиться (рисуем соло)" aria-label="Leave">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          </button>
+        </div>
+
+        <div class="group tools" role="toolbar" aria-label="Tools">
+          <button class="tool" data-tool="select" title="Select / Move (V)" aria-label="Select">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3l7 17 2-7 7-2z"/></svg>
+          </button>
+          <button class="tool active" data-tool="rect" title="Rectangle (R)" aria-label="Rectangle">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="1"/></svg>
+          </button>
+          <button class="tool" data-tool="ellipse" title="Ellipse (O)" aria-label="Ellipse">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="8" ry="6"/></svg>
+          </button>
+          <button class="tool" data-tool="diamond" title="Diamond (D)" aria-label="Diamond">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l9 9-9 9-9-9z"/></svg>
+          </button>
+          <button class="tool" data-tool="line" title="Free line (L)" aria-label="Line">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18c4-2 4-10 8-10s4 8 8 6"/></svg>
+          </button>
+          <button class="tool" data-tool="arrow" title="Arrow (A)" aria-label="Arrow">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18L20 6M20 6h-7M20 6v7"/></svg>
+          </button>
+          <button class="tool" data-tool="text" title="Text (T)" aria-label="Text">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6h14M12 6v14M8 20h8"/></svg>
+          </button>
+          <button class="tool" data-tool="erase" title="Eraser (E)" aria-label="Eraser">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4l5 5-9 9H6l-3-3z"/><path d="M9 20h12"/></svg>
+          </button>
+        </div>
+
+        <div class="group hist">
+          <button id="undo" title="Undo (Ctrl+Z)" disabled aria-label="Undo">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-3"/></svg>
+          </button>
+          <button id="redo" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled aria-label="Redo">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 000 10h3"/></svg>
+          </button>
+        </div>
+
+        <div class="group palette" id="stroke-palette" title="Stroke color">
+          <button class="swatch active" data-color="#1e1e1e" style="--sw:#1e1e1e" aria-label="Black"></button>
+          <button class="swatch" data-color="#e03131" style="--sw:#e03131" aria-label="Red"></button>
+          <button class="swatch" data-color="#2f9e44" style="--sw:#2f9e44" aria-label="Green"></button>
+          <button class="swatch" data-color="#1971c2" style="--sw:#1971c2" aria-label="Blue"></button>
+          <button class="swatch" data-color="#f08c00" style="--sw:#f08c00" aria-label="Orange"></button>
+          <button class="swatch" data-color="#9c36b5" style="--sw:#9c36b5" aria-label="Purple"></button>
+          <button class="swatch" data-color="#0c8599" style="--sw:#0c8599" aria-label="Teal"></button>
+          <button class="swatch custom" id="stroke-custom" title="Custom stroke">
+            <input type="color" id="stroke" value="#1e1e1e" />
+          </button>
+        </div>
+
+        <div class="group widths" id="width-group" title="Stroke width">
+          <button class="width" data-w="1" aria-label="Thin"><span class="bar" style="height:1px"></span></button>
+          <button class="width active" data-w="2" aria-label="Medium"><span class="bar" style="height:2px"></span></button>
+          <button class="width" data-w="4" aria-label="Bold"><span class="bar" style="height:4px"></span></button>
+        </div>
+
+        <div class="group sstrokes" id="ss-group" title="Stroke style">
+          <button class="ss active" data-ss="solid" aria-label="Solid">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12h16"/></svg>
+          </button>
+          <button class="ss" data-ss="dashed" aria-label="Dashed">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12h5M12 12h5M20 12h1"/></svg>
+          </button>
+          <button class="ss" data-ss="dotted" aria-label="Dotted">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h.5M9.5 12h.5M14 12h.5M18.5 12h.5"/></svg>
+          </button>
+        </div>
+
+        <div class="group rough" id="rough-group" title="Sketchiness">
+          <button class="rough" data-ro="0" aria-label="Architect"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18L20 6"/></svg></button>
+          <button class="rough active" data-ro="1" aria-label="Sketch"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18c4-2 4-10 8-10s4 8 8 6"/></svg></button>
+          <button class="rough" data-ro="2" aria-label="Cartoonist"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18c4-3 3-11 8-10s3 9 8 6"/></svg></button>
+        </div>
+
+        <div class="group fill-toggle" title="Fill style">
+          <button class="fill" data-fs="none" aria-label="No fill"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12"/></svg></button>
+          <button class="fill active" data-fs="hachure" aria-label="Hachure fill"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="6" width="16" height="12"/><path d="M6 18l12-12M8 18l10-10M10 18l8-8M12 18l6-6"/></svg></button>
+          <button class="fill" data-fs="solid" aria-label="Solid fill"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" stroke="currentColor" stroke-width="1"><rect x="4" y="6" width="16" height="12"/></svg></button>
+        </div>
+
+        <div class="group">
+          <label class="swatch-wrap" title="Fill color">
+            <input type="color" id="fill" value="#a5d8ff" />
+            <span class="swatch-label">Fill</span>
+          </label>
+        </div>
+
+        <div class="group zoom">
+          <button id="zoom-out" title="Zoom out (Ctrl+-)" aria-label="Zoom out">−</button>
+          <span id="zoom-label">100%</span>
+          <button id="zoom-in" title="Zoom in (Ctrl++)" aria-label="Zoom in">+</button>
+          <button id="zoom-reset" title="Reset zoom (Ctrl+0)" aria-label="Reset zoom">⌂</button>
+        </div>
+
+        <span id="users" class="users"></span>
+        <span id="status" class="status">online</span>
+      </header>
+      <canvas id="canvas" tabindex="0"></canvas>
+      <footer id="hints">
+        V/R/O/D/L/A/T/E — tools · Shift — констрейны (1:1 / 15°) · Alt+drag — дубликат · Shift+click / рамка — множественный выбор · Ctrl+A — всё · Space+drag — pan · Ctrl+колесо — zoom · PageUp/PageDown — порядок · Del — удалить · Ctrl+Z / Ctrl+Shift+Z — undo/redo · Ctrl+D — дубликат · dbl-click по тексту — правка · Ctrl+V — вставить текст/картинку · hover — кто автор
+      </footer>
+    </div>
+
+    <!-- Модалка входа: добровольное подключение. Solo — работаем локально, -->
+    <!-- без сервера; Join — websocket + пароль-гейт на сервере. -->
+    <div id="modal-backdrop" class="backdrop hidden">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+        <h2 id="m-title">Доска</h2>
+        <p class="m-sub">Подключитесь к комнате — или рисуйте соло.</p>
+        <label class="m-field">Имя
+          <input id="m-name" maxlength="24" placeholder="user-1234" autocomplete="off" />
+        </label>
+        <label class="m-field">Комната
+          <input id="m-room" maxlength="48" placeholder="demo (пусто = сгенерировать)" autocomplete="off" />
+        </label>
+        <label class="m-field">Пароль <span class="m-dim">(необязательно — первый вошедший «запирает» комнату)</span>
+          <input id="m-pass" type="password" maxlength="64" placeholder="без пароля — открытая комната" autocomplete="off" />
+        </label>
+        <p id="m-error" class="m-error hidden"></p>
+        <div class="m-actions">
+          <button id="m-solo" class="ghost">Соло (офлайн)</button>
+          <button id="m-join" class="primary">Подключиться</button>
+        </div>
+        <p class="m-hint">Линк с «?room=имя» открывает нужную комнату напрямую. Пароль комнаты живёт до перезапуска сервера.</p>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

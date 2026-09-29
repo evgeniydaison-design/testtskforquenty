@@ -1,0 +1,424 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
+  color: #1e1e1e;
+  background: #f5f5f5;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* --- Toolbar --- */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  z-index: 10;
+}
+
+#toolbar .group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+#toolbar .group.room {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+#toolbar .room {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+#toolbar input[type="text"],
+#toolbar input:not([type]) {
+  padding: 3px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font: inherit;
+  background: #fff;
+}
+
+/* --- Tool buttons --- */
+#toolbar button.tool,
+#toolbar button.hist,
+#toolbar button.width,
+#toolbar button.ss,
+#toolbar button.rough,
+#toolbar button.fill,
+#toolbar button.zoom-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #1e1e1e;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+#toolbar button.tool:hover,
+#toolbar button.hist:hover:not(:disabled),
+#toolbar button.width:hover,
+#toolbar button.ss:hover,
+#toolbar button.rough:hover,
+#toolbar button.fill:hover {
+  background: #eef2ff;
+}
+
+#toolbar button.tool.active,
+#toolbar button.width.active,
+#toolbar button.ss.active,
+#toolbar button.rough.active,
+#toolbar button.fill.active {
+  background: #4263eb;
+  color: #ffffff;
+  border-color: #3b5bdb;
+}
+
+#toolbar button.hist:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* --- Palette swatches --- */
+#toolbar .swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--sw, #ccc);
+  cursor: pointer;
+  padding: 0;
+  margin: 0 2px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+#toolbar .swatch:hover {
+  transform: scale(1.15);
+}
+
+#toolbar .swatch.active {
+  border-color: #4263eb;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 3px #4263eb;
+}
+
+#toolbar .swatch.custom {
+  background: conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  position: relative;
+  overflow: hidden;
+}
+
+#toolbar .swatch.custom input[type="color"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+/* --- Width bars --- */
+#toolbar .width {
+  position: relative;
+}
+
+#toolbar .width .bar {
+  display: block;
+  width: 18px;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+/* --- Fill color label --- */
+#toolbar .swatch-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+#toolbar input[type="color"] {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* --- Zoom controls --- */
+#toolbar .zoom {
+  gap: 4px;
+  padding: 4px 6px;
+}
+
+#toolbar .zoom button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  color: #1e1e1e;
+}
+
+#toolbar .zoom button:hover {
+  background: #eef2ff;
+}
+
+#toolbar #zoom-label {
+  min-width: 44px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* --- Status / users --- */
+#toolbar .status {
+  margin-left: auto;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+#toolbar .users {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.user-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* --- Canvas --- */
+#canvas {
+  flex: 1;
+  display: block;
+  outline: none;
+  background: #f5f5f5;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+#canvas:focus {
+  outline: none;
+}
+
+/* --- Hints footer --- */
+#hints {
+  padding: 6px 12px;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* --- Room chip / leave --- */
+#toolbar .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #fff;
+  color: #374151;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#toolbar .chip:hover {
+  background: #eef2ff;
+  border-color: #4263eb;
+}
+
+#toolbar .room { display: none; } /* legacy-инпут комнаты удалён в пользу чипа */
+
+/* --- Modal (экран входа в комнату) --- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.backdrop.hidden {
+  display: none;
+}
+
+.modal {
+  width: min(400px, 92vw);
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.modal .m-sub {
+  margin: -6px 0 4px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.modal .m-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.modal .m-field input {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+  outline: none;
+}
+
+.modal .m-field input:focus {
+  border-color: #4263eb;
+  box-shadow: 0 0 0 3px rgba(66, 99, 235, 0.18);
+}
+
+.modal .m-dim {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.modal .m-error {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fdecec;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.modal .m-error.hidden { display: none; }
+
+.modal .m-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.modal button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.modal button.primary {
+  background: #4263eb;
+  color: #fff;
+}
+
+.modal button.primary:hover { background: #3b5bdb; }
+
+.modal button.ghost {
+  background: #fff;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.modal button.ghost:hover { background: #f3f4f6; }
+
+.modal .m-hint {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* --- Inline text editor (dbl-click / tool «text») ---
+   Позиционируется в JS по экранным координатам элемента. Метрики
+   (16px / line-height 20px) совпадают с renderText, чтобы текст не
+   «прыгал» при коммите. Цвет берётся из штриха элемента. */
+.text-editor {
+  position: fixed;
+  z-index: 40;
+  margin: 0;
+  padding: 2px 4px;
+  min-width: 60px;
+  border: 2px solid #4263eb;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  font: 16px/20px -apple-system, "Segoe UI", system-ui, sans-serif;
+  color: #1e1e1e;
+  resize: none;
+  overflow: hidden;
+  outline: none;
+  white-space: pre;
+  caret-color: #4263eb;
+}
+
+/* --- Hover attribution tooltip («кто сделал запись») --- */
+.hover-tip {
+  position: fixed;
+  z-index: 45;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  font: 600 12px/1.3 -apple-system, "Segoe UI", system-ui, sans-serif;
+  pointer-events: none; /* не перехватывает hover у canvas */
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
